@@ -1,12 +1,15 @@
 const { Router } = require('express');
+const { 
+    getProductsTestControllers 
+} = require('../Business/data');
 const 
 { 
-    getRandomsControllers, getProductsTestControllers, 
+    getRandomsControllers,
     getInfoController, getLoginController, 
     getRegisterController, getRegisterUPController, 
     getDataController, getLogOutController, 
     getNoImplementadaController, getLoginErrorController
-} = require('../Business/data');
+} = require('../Business/dataUsers');
 
 const routerDatos = new Router();
 

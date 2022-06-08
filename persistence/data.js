@@ -1,17 +1,19 @@
 const config = require("../config");
 const users = require("../models/users");
-const { generateRandoms, sortNumber } = require("../modules/utils");
+const { utils, mensajes } = require("../modules/utils");
 const bcrypt = require("bcrypt");
+const messages = require("../models/mensajes");
 
 
+const data = new utils();
 module.exports.allRandoms = (quantity) => {
     let arrayOfNumbers = [];
     let numActual = null;
     let count = 0;
     let repeats = {};
-    const randomGenerate = generateRandoms(quantity);
+    const randomGenerate = data.generateRandoms(quantity);
     arrayOfNumbers = randomGenerate;
-    arrayOfNumbers.sort(sortNumber);
+    arrayOfNumbers.sort(data.sortNumber);
     for (let i = 0; i < arrayOfNumbers.length; i++) {
         if (arrayOfNumbers[i] != numActual) {
             if (count > 0) {
@@ -36,9 +38,45 @@ module.exports.allProducts = () => {
     let allOfMyProducts;
     for(let i = 0; i < 5; i++)
     {   
-        allOfMyProducts = generarCombinacion(i);
+        allOfMyProducts = data.generarCombinacion(i);
     }
     return allOfMyProducts;
+}
+
+module.exports.postMessage = async (message) => {
+    const newMessage = message.mensaje;
+    mensaje = {
+        ... mensajes,
+        text: {
+            id: String(id),
+            message: newMessage
+        }
+    }
+    const newMessageToAddModel = new messages(mensaje);
+    const newMessageAdded = await newMessageToAddModel.save()
+        .then(async () => {
+            async function allMessages () {
+                const allOfMyMessagesMongo = await messages.find()
+                .then((rows) => {
+                    const MessagesTotal = rows.reduce((rowacc, row) => 
+                    {
+                        return rowacc = [...rowacc, row]
+                    }
+                    , [])
+                    return MessagesTotal;
+                })
+                .catch((err) => console.log(err))       
+                
+                return allOfMyMessagesMongo;
+            }
+            const totalMessages = await allMessages();
+            return totalMessages;
+        }).catch((err) => {
+            logger.error(`A ocurrido el siguiente error: ${err}`)
+            console.log(err)
+        })
+        
+    return newMessageAdded;
 }
 
 module.exports.allInfo = () => {
@@ -55,6 +93,10 @@ module.exports.allRegister = () => {
 
 module.exports.allLoginError = () => {
     return 'login-error'
+}
+
+module.exports.allLogOut = () => {
+    return '/'
 }
 
 module.exports.allRegisterUP = async ( nombre, password, direccion ) => {
@@ -81,7 +123,7 @@ module.exports.allData = ( user, adress ) => {
         adress: adress
     }
 
-    return ('datos', {datos: infoUser});
+    return (infoUser);
 }
 
 module.exports.allNoImplementada = (url, method) => {
