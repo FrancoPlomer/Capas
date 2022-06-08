@@ -20,8 +20,9 @@ const compression = require("compression");
 const logger = require('./modules/logger');
 const { validatePort } = require('./modules/validatePort');
 
-const { print, generarCombinacion, sortNumber, generateRandoms, mensajes, productos, id, addMessages } = require('./persistence/data');
+const { print, mensajes, productos, id } = require('./modules/utils');
 const { routerDatos } = require('./Router/routes');
+const { postAddMessagesControllers } = require('./Business/data');
 const puerto = parseArgs(process.argv.slice(2));
 const PORT = validatePort(puerto["modo"]);
 
@@ -35,6 +36,7 @@ passport.use(new LocalStrategy(
     async (username, password, done)=>{
         const [existeUsuario] = await users.find({user: username})
         const result = bcrypt.compareSync(password, existeUsuario.pass);
+        console.log(result)
         if (!existeUsuario) {
             console.log('Usuario no encontrado')
             return done(null, false);
@@ -92,17 +94,17 @@ app.use('/api', routerDatos)
 app.get('/', (req, res)=>{
     logger.info(`Usted ingreso a la ruta: ${req.route.path}. \n La peticion es del tipo: ${req.method}`)
     if (req.session.user) {
-        res.redirect('/datos')
+        res.redirect('/api/datos')
     } else {
-        res.redirect('/login')
+        res.redirect('/api/login')
     }
 })
 
 
-app.post('/login', passport.authenticate('local', 
+app.post('/api/login', passport.authenticate('local', 
     {
-        successRedirect: '/datos',
-        failureRedirect: '/login-error'
+        successRedirect: '/api/datos',
+        failureRedirect: '/api/login-error'
     }
 ))
 
@@ -167,7 +169,7 @@ io.on('connection', (socket) => {
             autores: [],
             mensajes: []
         }
-        let AllofMyMessages = await addMessages(newMessage);
+        let AllofMyMessages = await postAddMessagesControllers(newMessage);
         let normalizedComments;
         let denormalizedComments;
         AllofMyMessages.map((message) =>
